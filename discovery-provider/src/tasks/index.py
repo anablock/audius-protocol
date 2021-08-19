@@ -1,10 +1,10 @@
 import concurrent.futures
 import logging
-from src.challenges.trending_challenge import should_trending_challenge_update
-
 from sqlalchemy import func
+
 from src.app import contract_addresses
 from src.challenges.challenge_event_bus import ChallengeEventBus
+from src.challenges.trending_challenge import should_trending_challenge_update
 from src.models import (
     AssociatedWallet,
     Block,
@@ -524,7 +524,7 @@ def index_blocks(self, db, blocks_list):
         try:
             # Check the last block's timestamp for updating the trending challenge
             [should_update, date] = should_trending_challenge_update(
-                redis, session, latest_block_timestamp
+                session, latest_block_timestamp
             )
             if should_update:
                 celery.send_task("calculate_trending_challenges", kwargs={"date": date})
