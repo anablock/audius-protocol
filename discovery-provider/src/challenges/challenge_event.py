@@ -12,3 +12,6 @@ class ChallengeEvent(str, enum.Enum):
     track_listen = "track_listen"
     track_upload = "track_upload"
     connect_verified = "connect_verified"
+    trending_track = "trending_track"
+    trending_underground = "trending_underground"
+    trending_playlist = "trending_playlist"

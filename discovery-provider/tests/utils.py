@@ -72,7 +72,7 @@ def populate_mock_db(db, entities):
         track_routes = entities.get("track_routes", [])
         remixes = entities.get("remixes", [])
         stems = entities.get("stems", [])
-        num_blocks = max(len(tracks), len(users), len(follows))
+        num_blocks = max(len(tracks), len(users), len(follows), len(saves))
 
         for i in range(num_blocks):
             block = models.Block(

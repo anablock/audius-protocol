@@ -24,7 +24,8 @@ def upgrade():
 
     # Create the challenges if needed
     session = Session(bind=connection)
-    create_new_challenges(session)
+    allowed_challenge_types = set(['boolean', 'numeric'])
+    create_new_challenges(session, allowed_challenge_types)
     session.commit()
     session.close()
 

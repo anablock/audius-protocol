@@ -206,7 +206,6 @@ class ChallengeManager:
         self._updater.on_after_challenge_creation(session, to_create_metadata)
 
         # Update all the challenges
-
         in_progress_challenges = [
             challenge
             for challenge in existing_user_challenges
@@ -215,7 +214,12 @@ class ChallengeManager:
         to_update = in_progress_challenges + new_user_challenges
 
         self._updater.update_user_challenges(
-            session, event_type, to_update, self._step_count, events_with_specifiers, self._starting_block
+            session,
+            event_type,
+            to_update,
+            self._step_count,
+            events_with_specifiers,
+            self._starting_block,
         )
 
         # Add block # to newly completed challenges
