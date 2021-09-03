@@ -699,7 +699,9 @@ workflows:
       - test-solana-programs:
           name: test-solana-programs
 
-      - test-mad-dog-e2e
+      - test-mad-dog-e2e:
+          name: test-mad-dog-e2e-nightly-test
+          mad-dog-type: test-ci-nightly
 
   # test master at midnight daily
   test-nightly:
@@ -720,7 +722,11 @@ workflows:
           name: test-solana-programs-nightly
       - test-mad-dog-e2e:
           name: test-mad-dog-e2e-nightly
+<<<<<<< HEAD
           mad-dog-type: test-ci-nightly
+=======
+          mad-dog-type: test-nightly
+>>>>>>> is-maddog-extend
     triggers:
       - schedule:
           cron: '0 5 * * *'
