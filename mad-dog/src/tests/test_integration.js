@@ -713,11 +713,7 @@ async function checkMetadataEquality ({ endpoints, metadataMultihash, userId }) 
   })
 }
 
-<<<<<<< HEAD
-const verifyThresholds = () => {
-=======
 const verifyThresholds = (emitterTest) => {
->>>>>>> is-maddog-extend
   const numberOfTicks = (emitterTest.testDurationSeconds / emitterTest.tickIntervalSeconds) - 1
   assert.ok(uploadedTracks.length > (numberOfTicks / 5))
   assert.ok(repostedTracks.length > (numberOfTicks / 10))
