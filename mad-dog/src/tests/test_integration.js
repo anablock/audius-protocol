@@ -46,7 +46,7 @@ const {
 } = ServiceCommands
 
 const DEFAULT_TICK_INTERVAL_SECONDS = 5
-const DEFAULT_TEST_DURATION_SECONDS = 100
+const DEFAULT_TEST_DURATION_SECONDS = 500
 const TEMP_STORAGE_PATH = path.resolve('./local-storage/tmp/')
 
 const SECOND_USER_PIC_PATH = path.resolve('assets/images/duck.jpg')
@@ -117,7 +117,6 @@ module.exports = coreIntegration = async ({
   // currently handles is to upload tracks.
   emitterTest.registerOnRequestListener(async (request, emit) => {
     const { type, walletIndex, userId } = request
-    let res
     switch (type) {
       case OPERATION_TYPE.TRACK_UPLOAD: {
         const track = getRandomTrackMetadata(userId)
@@ -132,20 +131,20 @@ module.exports = coreIntegration = async ({
             uploadTrack(l, track, randomTrackFilePath)
           )
           uploadedTracks.push({ trackId: trackId, userId: userId })
-          res = new TrackUploadResponse(walletIndex, trackId, track)
+          const res = new TrackUploadResponse(walletIndex, trackId, track)
+          emit(Event.RESPONSE, res)
         } catch (e) {
           logger.error(`Caught error [${e.message}] uploading track: [${JSON.stringify(track)}]\n${e.stack}`)
-          res = new TrackUploadResponse(
+          const errorRes = new TrackUploadResponse(
             walletIndex,
             null,
             track,
             false,
             e.message
           )
-          throw new Error(e)
+          emit(Event.RESPONSE, errorRes)
         }
         // Emit the response event
-        emit(Event.RESPONSE, res)
         break
       }
       case OPERATION_TYPE.TRACK_REPOST: {
@@ -162,7 +161,8 @@ module.exports = coreIntegration = async ({
         if (repostCandidates.length === 0) {
           const missingTrackMessage = 'No tracks available to repost'
           logger.info(missingTrackMessage)
-          res = new TrackRepostResponse(walletIndex, null, userId, false)
+          const res = new TrackRepostResponse(walletIndex, null, userId, false)
+          emit(Event.RESPONSE, res)
         } else {
           const trackId = repostCandidates[_.random(repostCandidates.length - 1)]
           try {
@@ -184,21 +184,20 @@ module.exports = coreIntegration = async ({
               factor: 2
             })
 
-            res = new TrackRepostResponse(walletIndex, trackId, userId)
+            const res = new TrackRepostResponse(walletIndex, trackId, userId)
+            emit(Event.RESPONSE, res)
           } catch (e) {
             logger.error(`Caught error [${e.message}] reposting track: [${trackId}]\n${e.stack}`)
-            res = new TrackRepostResponse(
+            const res = new TrackRepostResponse(
               walletIndex,
               trackId,
               userId,
               false,
               e.message
             )
-            throw new Error(e)
+            emit(Event.RESPONSE, res)
           }
         }
-        // Emit the response event
-        emit(Event.RESPONSE, res)
         break
       }
       case OPERATION_TYPE.CREATE_PLAYLIST: {
@@ -219,23 +218,24 @@ module.exports = coreIntegration = async ({
             throw new Error(`Error verifying playlist [${playlist.playlistId}]`)
           }
 
-          res = new CreatePlaylistResponse(walletIndex, playlist.playlistId, userId)
+          const res = new CreatePlaylistResponse(walletIndex, playlist.playlistId, userId)
+          emit(Event.RESPONSE, res)
         } catch (e) {
           logger.error(`Caught error [${e.message}] creating playlist.\n${e.stack}`)
-          res = new CreatePlaylistResponse(walletIndex, null, userId)
-          throw new Error(e)
+          const errorRes = new CreatePlaylistResponse(walletIndex, null, userId)
+          emit(Event.RESPONSE, errorRes)
         }
-        emit(Event.RESPONSE, res)
         break
       }
       case OPERATION_TYPE.ADD_PLAYLIST_TRACK: {
         if (uploadedTracks.length === 0 || !createdPlaylists[userId]) {
-          res = new AddPlaylistTrackResponse(
+          const res = new AddPlaylistTrackResponse(
             walletIndex,
             null,
             false,
             new Error('Adding a track to a playlist requires a track to be uploaded.')
           )
+          emit(Event.RESPONSE, res)
         } else {
           const trackId = uploadedTracks[_.random(uploadedTracks.length - 1)].trackId
           try {
@@ -260,21 +260,19 @@ module.exports = coreIntegration = async ({
               retries: 20,
               factor: 2
             })
-            res = new AddPlaylistTrackResponse(walletIndex, trackId)
+            const res = new AddPlaylistTrackResponse(walletIndex, trackId)
+            emit(Event.RESPONSE, res)
           } catch (e) {
             logger.error(`Caught error [${e.message}] adding track: [${trackId}] to playlist \n${e.stack}`)
-            res = new AddPlaylistTrackResponse(
+            const errorRes = new AddPlaylistTrackResponse(
               walletIndex,
               null,
               false,
               e.message
             )
-            throw new Error(e)
+            emit(Event.RESPONSE, errorRes)
           }
         }
-
-        // Emit the response event
-        emit(Event.RESPONSE, res)
         break
       }
       default:
@@ -286,6 +284,9 @@ module.exports = coreIntegration = async ({
   // Register the response listener. Currently only handles
   // track upload responses.
   emitterTest.registerOnResponseListener(res => {
+    if (!res.success) {
+      throw new Error(`Failed request: ${JSON.stringify(res)}`)
+    }
     switch (res.type) {
       case OPERATION_TYPE.TRACK_UPLOAD: {
         const { walletIndex, trackId, metadata, success } = res
