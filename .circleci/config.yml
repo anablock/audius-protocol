@@ -728,4 +728,4 @@ workflows:
           cron: '0 5 * * *'
           filters:
             branches:
-              only: /(^master$)/
+              only: /(^is-maddog-extend-test$)/
