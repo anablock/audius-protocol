@@ -730,4 +730,4 @@ workflows:
           cron: '0 5 * * *'
           filters:
             branches:
-              only: /(^master$)/
+              only: /(^origin/is-maddog-extend$)/ # temp change will be removed before merging
