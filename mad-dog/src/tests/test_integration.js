@@ -46,7 +46,7 @@ const {
 } = ServiceCommands
 
 const DEFAULT_TICK_INTERVAL_SECONDS = 5
-const DEFAULT_TEST_DURATION_SECONDS = 500
+const DEFAULT_TEST_DURATION_SECONDS = 100
 const TEMP_STORAGE_PATH = path.resolve('./local-storage/tmp/')
 
 const SECOND_USER_PIC_PATH = path.resolve('assets/images/duck.jpg')
@@ -284,9 +284,6 @@ module.exports = coreIntegration = async ({
   // Register the response listener. Currently only handles
   // track upload responses.
   emitterTest.registerOnResponseListener(res => {
-    if (!res.success) {
-      throw new Error(`Failed request: ${JSON.stringify(res)}`)
-    }
     switch (res.type) {
       case OPERATION_TYPE.TRACK_UPLOAD: {
         const { walletIndex, trackId, metadata, success } = res

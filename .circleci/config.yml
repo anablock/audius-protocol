@@ -699,7 +699,9 @@ workflows:
       - test-solana-programs:
           name: test-solana-programs
 
-      - test-mad-dog-e2e
+      - test-mad-dog-e2e:
+          name: test-mad-dog-e2e-nightly
+          mad-dog-type: test-nightly
 
   # test master at midnight daily
   test-nightly:
